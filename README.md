@@ -4,4 +4,4 @@
 - ![image](https://github.com/scolenchris/Astar_opencv/assets/128346155/acc6ae57-cbdb-48a8-b2f7-d3d20e0fba79)
 - 部分代码参考
 > https://1keven1.github.io/2021/06/17/%E3%80%90C-%E3%80%91%E5%9F%BA%E4%BA%8EOpenCV%E7%9A%84A%E6%98%9F%E7%AE%97%E6%B3%95%E5%AE%9E%E7%8E%B0/
-> 感谢大佬的A*算法实现，自己重新写了部分框架，套用了大佬的算法部分
+- 感谢大佬的A*算法实现，自己重新写了部分框架，套用了大佬的算法部分
