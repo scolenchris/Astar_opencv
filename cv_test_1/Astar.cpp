@@ -98,6 +98,8 @@ bool AStar4Way(GridCell* startGrid, GridCell* endGrid, std::vector<GridCell>& gr
 		}
 	}
 	std::cout << "Ñ°Â·Ê§°Ü" << std::endl;
+	system("pause");
+	exit(0);
 	return false;
 }
 

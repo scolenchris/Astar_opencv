@@ -7,8 +7,8 @@
 #include <ctime>
 
 // 网格参数，网格设置为正方形，
-const int grid_size = 64;//网格规模大小，xx*xx
-const int cell_size = 10;//网格像素宽度，用于画网格，和推算网格编号
+const int grid_size = 20;//网格规模大小，xx*xx
+const int cell_size = 25;//网格像素宽度，用于画网格，和推算网格编号
 const int image_size = grid_size * cell_size;//图像大小
 
 // 网格类型结构体
