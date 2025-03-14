@@ -46,9 +46,13 @@ The program begins by invoking the `gridInit` function, passing the `grids` and 
 The main loop continuously executes the following workflow:
 
 - The `cv::waitKey` function is called to wait for user input, returning the ASCII code of the key pressed.
+
 - If both `startGrid` and `endGrid` are defined and `isSuccess` is false, the `AStar4Way` function is called with the `startGrid`, `endGrid`, `grids`, and `grid_size` parameters to execute the A\* algorithm, and the result is assigned to the `isSuccess` variable.
+
 - If `isSuccess` is true, the `AddAllRouteGridToVector` function is called with the `endGrid` and `route` parameters to store all grid points along the path in the `route` vector.
+
 - Finally, the `showRoute` function is invoked with the `image`, `grid_size`, `cell_size`, `grids`, and `route` parameters to display the path.
+
 - If the ESC key is pressed, the loop terminates.
 
 The `cv::imshow` function is then called to display the image, followed by `cv::destroyAllWindows` to close all windows, concluding the program.
@@ -74,11 +78,17 @@ The starting node `startGrid` is added to the Open List.
 The loop continues until the Open List is empty:
 
 - The node with the smallest `FCost` in the Open List is selected as the `current` node. If multiple nodes have the same `FCost`, the node with the smallest `HCost` is chosen as `current`.
+
 - The `current` node is removed from the Open List and added to the Close List.
+
 - If `current` is the target node `endGrid`, the pathfinding is successful, and the function returns `true`.
+
 - The neighbors of `current` are retrieved using the `FindAllNeighbors4Way` function. For each neighbor:
+
   - If the neighbor is a wall or already in the Close List or Open List, it is skipped.
+
   - Otherwise, the neighbor's parent node is set to `current`, and its cost is calculated using the `setCost4Way` function. The neighbor is then added to the Open List.
+
 - If the Open List becomes empty, the pathfinding fails, and the function returns `false`.
 
 ## 4. FindAllNeighbors4Way Function
@@ -92,8 +102,11 @@ The index of the current node `current` is obtained, representing its position i
 For each of the four directions:
 
 - If the current node is not at the top edge (i.e., `currentY > 0`), the top neighbor node is added to the neighbor set. This is done by calculating the index of the top neighbor in the 1D array, retrieving the neighbor's pointer using the `getGridNum` function, and adding it to the neighbor set.
+
 - If the current node is not at the bottom edge (i.e., `currentY < grid_size - 1`), the bottom neighbor node is added to the neighbor set using the same method.
+
 - If the current node is not at the left edge (i.e., `currentX > 0`), the left neighbor node is added to the neighbor set using the same method.
+
 - If the current node is not at the right edge (i.e., `currentX < grid_size - 1`), the right neighbor node is added to the neighbor set using the same method.
 
 Finally, the neighbor set is returned.
@@ -125,8 +138,11 @@ This function renders the initialized grid and adds dividing lines for clarity.
 A nested loop is used to traverse the entire grid. Depending on the type of each grid cell, the `cv::rectangle` function is used to draw rectangles filled with different colors:
 
 - If the grid cell is an obstacle, it is filled with a deep purple-blue color.
+
 - If the grid cell is the end point, it is filled with green.
+
 - If the grid cell is the start point, it is filled with red.
+
 - If the grid cell is part of the path, it is filled with brown.
 
 Grid lines are then drawn on the image using a loop, with black color and a line width of 2. Vertical lines are defined by `cv::Point(i * cell_size, 0)` and `cv::Point(i * cell_size, image_size)`, while horizontal lines are defined by `cv::Point(0, i * cell_size)` and `cv::Point(image_size, i * cell_size)`.
@@ -142,8 +158,11 @@ If the current grid cell is the starting cell, its `GCost` is set to 0. Otherwis
 This function is responsible for storing the computed path points in a vector, which is later used to represent and display the path.
 
 - If the current grid cell `grid` has a parent node (i.e., it is not the starting point), the following operations are performed:
+
   - The current grid cell `grid` is added to the result vector `result`.
+
   - A recursive call to `AddAllRouteGridToVector` is made to continue processing the parent node, effectively backtracking up the path until a node with no parent (i.e., the starting point) is reached.
+
 - If the current grid cell has no parent node (i.e., it is the starting point), the function simply returns (exits).
 
 # IV. Result Analysis
@@ -153,31 +172,45 @@ To make the timing function more noticeable, the grid size was set to 64x64, res
 ## 1. Phenomenon Description
 
 First, a simple loop maze was manually generated to test whether the pathfinding could succeed. The result is shown in the following figure:
-![image](https://github.com/user-attachments/assets/fc9291ba-a59f-4c76-8ce7-8c94bf54070b)
 
-![Loop Maze Test](image_link_placeholder)
+![image](https://github.com/user-attachments/assets/fc9291ba-a59f-4c76-8ce7-8c94bf54070b)
 
 As can be seen, the program successfully found the endpoint and displayed the path. The pseudo-code for the A\* algorithm implemented in this program is as follows:
 
 - **Open Queue**: A queue of nodes to be evaluated.
+
 - **Closed Queue**: A queue of nodes that have already been evaluated.
+
 - Add the starting node to the Open Queue.
 
 While the Open Queue is not empty, loop:
 
 - **Current Node**: Select the node with the smallest F Cost in the Open Queue. If there are multiple nodes with the same F Cost, choose the one with the smallest H Cost. If they are still the same, select any.
+
 - Remove the Current Node from the Open Queue.
+
 - Add the Current Node to the Closed Queue.
+
 - If the Current Node is the target node:
+
   - Return: Pathfinding successful.
+
 - For each neighbor of the Current Node:
+
   - If the neighbor is impassable or already in the Closed Queue:
+
     - Skip this neighbor.
+
   - If the neighbor is not in the Open Queue or the new path to the neighbor has a lower G Cost:
+
     - Set the Cost of the neighbor.
+
     - Set the parent of the neighbor to the Current Node.
+
     - If the neighbor is not in the Open Queue:
+
       - Add the neighbor to the Open Queue.
+
 - Return: Pathfinding failed.
 
 The program calculates the `fCost`, `gCost`, and `hCost` for each node along the path. Although the program does not include a visual display for these costs, they can be observed in the debugging window, as shown below:
@@ -187,7 +220,9 @@ The program calculates the `fCost`, `gCost`, and `hCost` for each node along the
 ## 2. Algorithm Description
 
 - **fCost**: The estimated total cost from the start node to the goal node via node `n`.
+
 - **gCost**: The actual cost from the start node to node `n`.
+
 - **hCost**: The estimated cost from node `n` to the goal node.
 
 First, the `gCost` is calculated. For example, if moving horizontally from node A to a neighboring cell, the single-step movement cost is 10, so `g = 10`.
@@ -197,7 +232,6 @@ Next, the heuristic cost `h` is estimated. This estimation ignores any obstacles
 The following diagram from [Red Blob Games](https://www.redblobgames.com/pathfinding/a-star/introduction.html) provides a visual explanation:
 
 ![image](https://github.com/user-attachments/assets/cc044a4d-bc49-472f-869c-590d24e68ccc)
-
 
 The arrow direction indicates the movement direction. Although this diagram reflects a reverse path, the principle is similar. The following figure better illustrates this process:
 
@@ -234,6 +268,7 @@ The program includes a timing function to display the pathfinding duration:
 ![image](https://github.com/user-attachments/assets/9f3c35b0-32b2-4d0e-909c-a8c16a49141b)
 
 **(4) Pathfinding Failure Handling**
+
 ![image](https://github.com/user-attachments/assets/f04c36d1-2fd9-4b7e-b746-c8eba0db8a24)
 
 The program handles cases where pathfinding fails, ensuring robustness in various scenarios.
