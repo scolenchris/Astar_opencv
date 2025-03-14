@@ -153,6 +153,7 @@ To make the timing function more noticeable, the grid size was set to 64x64, res
 ## 1. Phenomenon Description
 
 First, a simple loop maze was manually generated to test whether the pathfinding could succeed. The result is shown in the following figure:
+![image](https://github.com/user-attachments/assets/fc9291ba-a59f-4c76-8ce7-8c94bf54070b)
 
 ![Loop Maze Test](image_link_placeholder)
 
@@ -181,7 +182,7 @@ While the Open Queue is not empty, loop:
 
 The program calculates the `fCost`, `gCost`, and `hCost` for each node along the path. Although the program does not include a visual display for these costs, they can be observed in the debugging window, as shown below:
 
-![Debugging Window](image_link_placeholder)
+![image](https://github.com/user-attachments/assets/efacc9eb-16a5-4648-a042-d67e18110489)
 
 ## 2. Algorithm Description
 
@@ -195,11 +196,12 @@ Next, the heuristic cost `h` is estimated. This estimation ignores any obstacles
 
 The following diagram from [Red Blob Games](https://www.redblobgames.com/pathfinding/a-star/introduction.html) provides a visual explanation:
 
-![Pathfinding Diagram](image_link_placeholder)
+![image](https://github.com/user-attachments/assets/cc044a4d-bc49-472f-869c-590d24e68ccc)
+
 
 The arrow direction indicates the movement direction. Although this diagram reflects a reverse path, the principle is similar. The following figure better illustrates this process:
 
-![Pathfinding Process](image_link_placeholder)
+![image](https://github.com/user-attachments/assets/04219e2d-c92a-44fb-8922-c69e9d540361)
 
 ## 3. Functional Description
 
@@ -207,28 +209,31 @@ The arrow direction indicates the movement direction. Although this diagram refl
 
 The map can be customized by clicking the mouse to set the start and end points. For example, the top-left corner of the map can be modified as shown below:
 
-![Custom Map](image_link_placeholder)
+![image](https://github.com/user-attachments/assets/d7c1bea4-7531-4ec8-a2db-c01db2cc9035)
+
+![image](https://github.com/user-attachments/assets/3a4383c1-8c25-4343-8272-16214196cba6)
 
 The start and end points can be determined by mouse clicks:
 
-![Start and End Points](image_link_placeholder)
+![image](https://github.com/user-attachments/assets/0defe416-0571-4057-8583-960953452555)
 
 **(2) Map Size Definition**
 
 The map size can be adjusted by modifying the following parameter:
 
-![Map Size Definition](image_link_placeholder)
+![image](https://github.com/user-attachments/assets/77833504-1d8b-4e2e-8f62-c5215e6e968e)
 
 This allows for changes in map size while maintaining normal functionality:
 
-![Resized Map](image_link_placeholder)
+![image](https://github.com/user-attachments/assets/e9c223be-40cd-42c7-9da4-15f2c7856a7e)
 
 **(3) Time Display**
 
 The program includes a timing function to display the pathfinding duration:
 
-![Time Display](image_link_placeholder)
+![image](https://github.com/user-attachments/assets/9f3c35b0-32b2-4d0e-909c-a8c16a49141b)
 
 **(4) Pathfinding Failure Handling**
+![image](https://github.com/user-attachments/assets/f04c36d1-2fd9-4b7e-b746-c8eba0db8a24)
 
 The program handles cases where pathfinding fails, ensuring robustness in various scenarios.
