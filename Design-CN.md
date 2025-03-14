@@ -10,7 +10,20 @@ A\*（A-star）算法是一种在图搜索和路径规划领域广泛应用的�
   - [目录](#目录)
 - [二、方案论证(设计理念)](#二方案论证设计理念)
 - [三、过程论述](#三过程论述)
+  - [1. main 函数部分](#1-main-函数部分)
+  - [2. onMouse 函数](#2-onmouse-函数)
+  - [3. AStar4Way 函数](#3-astar4way-函数)
+  - [4. FindAllNeighbors4Way 函数](#4-findallneighbors4way-函数)
+  - [5. showRoute 函数](#5-showroute-函数)
+  - [6. gridInit 函数](#6-gridinit-函数)
+  - [7. generateObstacles 函数](#7-generateobstacles-函数)
+  - [8. drawGrid 函数](#8-drawgrid-函数)
+  - [9. GridCell::setCost4Way 函数](#9-gridcellsetcost4way-函数)
+  - [10. AddAllRouteGridToVector 函数](#10-addallroutegridtovector-函数)
 - [四、结果分析](#四结果分析)
+  - [1. 现象描述](#1-现象描述)
+  - [2. 算法描述](#2-算法描述)
+  - [3. 功能描述](#3-功能描述)
 
 # 二、方案论证(设计理念)
 
@@ -21,66 +34,82 @@ A\*（A-star）算法是一种在图搜索和路径规划领域广泛应用的�
 
 # 三、过程论述
 
-1. main 函数部分
-   首先调用 gridInit 函数，传入 grids 和 grid_size 参数，对网格数组进行初始化。接着调用 generateObstacles 函数，传入 grids 参数，随机生成障碍物。然后，调用 drawGrid 函数，传入 image、grid_size、cell_size 和 grids 参数，将格子绘制在图像上，创建一个窗口，并绑定鼠标事件回调函数。
-   进入主循环，不断执行以下的程序流程：
-   调用 cv::waitKey 函数等待用户按键，返回按键的 ASCII 码。如果 startGrid 和 endGrid 都存在且 isSucess 为假，则调用 AStar4Way 函数，传入 startGrid、endGrid、grids 和 grid_size 参数，执行 A\*算法，将结果赋给 isSucess 变量。如果 isSucess 为真，则调用 AddAllRouteGridToVector 函数，传入 endGrid 和 route 参数，将路径上的所有网格放入 route 中。最后，调用 showRoute 函数，传入 image、grid_size、cell_size、grids 和 route 参数，显示路径。如果按下 ESC 键，则跳出循环。
-   调用 cv::imshow 函数，显示图像，再调用 cv::destroyAllWindows 函数，销毁所有窗口，然后结束
-2. onMouse 函数
-   函数用来自定义设置终点，起点和障碍物，实现自定义的地图的功能，实现不同情况下算法的实现情况的对比。
-   我先定义了一个静态的 startPt 和 endPt 变量，用来存储起点和终点的坐标。然后，代码通过判断 firstClick 的值来确定当前是设置起点还是终点。如果 firstClick 为 true，则表示当前是设置起点的阶段，如果为 false，则表示当前是设置终点的阶段。
-   如果鼠标左键第一次点击，程序会计算鼠标点击位置所在的网格的行和列，并切换该网格的颜色。然后，代码通过 cv::rectangle 函数在图像上填充矩形框，来显示网格的颜色变化。最后，代码将 firstClick 设置为 false，表示已经完成了设置起点的操作，并将起点所在的网格设置为起点的网格。
-   鼠标左键第二次被点击，代码会计算鼠标点击位置所在的网格的行和列，并切换该网格的颜色。程序通过 cv::rectangle 函数在图像上填充矩形框，以显示网格的颜色变化。将终点所在的网格设置为终点的网格，并关闭鼠标点击变换功能，即将回调函数设置为 NULL，以防止进一步的鼠标点击操作。
-   同时，如果鼠标右键被点击，代码会计算鼠标点击位置所在的网格的行和列，并判断该网格是否已经被设置为障碍物。如果该网格不是障碍物，代码会在图像上填充矩形框，将该网格设置为障碍物，并改变矩形框的颜色。如果该网格已经是障碍物，代码会将该网格取消障碍物，并将矩形框的颜色改变回默认颜色。
-3. AStar4Way 函数
-   我首先定义了一些变量，包括 openGrid（表示 Open List，即待探索的节点集合）、closeGrid（表示 Close List，即已探索的节点集合）、current（表示当前正在计算的节点）。
-   将起始节点 startGrid 放入 Open List。
+## 1. main 函数部分
 
-   - 进入循环，直到 Open List 为空：
-     - 找到 Open List 中 FCost 最小的节点作为当前节点 current。如果存在多个节点的 FCost 相同，则选择其中 HCost 最小的节点作为 current。
-     - 将 current 从 Open List 中移除，并加入到 Close List 中。
-     - 如果 current 是目标节点 endGrid，则寻路成功，返回 true。
-       - 获取 current 的所有邻居节点（使用 FindAllNeighbors4Way 函数），对于每个邻居节点：
-       - 如果邻居节点是墙或者已经在 Close List 或 Open List 中，则跳过。
-     - 否则，将邻居节点的父节点设置为 current，并计算邻居节点的代价（使用 setCost4Way 函数），将邻居节点加入 Open List 中。
-   - 如果 Open List 为空，则寻路失败，返回 false。
+首先调用 gridInit 函数，传入 grids 和 grid_size 参数，对网格数组进行初始化。接着调用 generateObstacles 函数，传入 grids 参数，随机生成障碍物。然后，调用 drawGrid 函数，传入 image、grid_size、cell_size 和 grids 参数，将格子绘制在图像上，创建一个窗口，并绑定鼠标事件回调函数。
+进入主循环，不断执行以下的程序流程：
+调用 cv::waitKey 函数等待用户按键，返回按键的 ASCII 码。如果 startGrid 和 endGrid 都存在且 isSucess 为假，则调用 AStar4Way 函数，传入 startGrid、endGrid、grids 和 grid_size 参数，执行 A\*算法，将结果赋给 isSucess 变量。如果 isSucess 为真，则调用 AddAllRouteGridToVector 函数，传入 endGrid 和 route 参数，将路径上的所有网格放入 route 中。最后，调用 showRoute 函数，传入 image、grid_size、cell_size、grids 和 route 参数，显示路径。如果按下 ESC 键，则跳出循环。
+调用 cv::imshow 函数，显示图像，再调用 cv::destroyAllWindows 函数，销毁所有窗口，然后结束
 
-4. FindAllNeighbors4Way 函数
-   函数用来找到当前节点的所有四连通邻居节点，也就是该点四个方向可以走的地方，用于辅助 A\*算法实现
-   先定义了一个空的邻居节点集合 neighbors，最后将用于返回。
-   获取当前节点 current 的索引，即当前节点在二维网格中的位置（currentX 和 currentY）。
+## 2. onMouse 函数
 
-   - 对于四个方向上的邻居节点：
-   - 如果当前节点不在最上方，即 currentY 大于 0，则将上方邻居节点加入邻居节点集合。具体操作是通过计算上方邻居节点在一维数组中的索引，使用 getGridNum 函数取邻居节点的指针，并将其加入邻居节点集合。
-   - 如果当前节点不在最下方，即 currentY 小于 gridsize-1，则将下方邻居节点加入邻居节点集合。具体操作同上。
-   - 如果当前节点不在最左侧，即 currentX 大于 0，则将左侧邻居节点加入邻居节点集合。具体操作同上。
-   - 如果当前节点不在最右侧，即 currentX 小于 gridsize-1，则将右侧邻居节点加入邻居节点集合。具体操作同上。最后返回邻居节点集合。
+函数用来自定义设置终点，起点和障碍物，实现自定义的地图的功能，实现不同情况下算法的实现情况的对比。
+我先定义了一个静态的 startPt 和 endPt 变量，用来存储起点和终点的坐标。然后，代码通过判断 firstClick 的值来确定当前是设置起点还是终点。如果 firstClick 为 true，则表示当前是设置起点的阶段，如果为 false，则表示当前是设置终点的阶段。
+如果鼠标左键第一次点击，程序会计算鼠标点击位置所在的网格的行和列，并切换该网格的颜色。然后，代码通过 cv::rectangle 函数在图像上填充矩形框，来显示网格的颜色变化。最后，代码将 firstClick 设置为 false，表示已经完成了设置起点的操作，并将起点所在的网格设置为起点的网格。
+鼠标左键第二次被点击，代码会计算鼠标点击位置所在的网格的行和列，并切换该网格的颜色。程序通过 cv::rectangle 函数在图像上填充矩形框，以显示网格的颜色变化。将终点所在的网格设置为终点的网格，并关闭鼠标点击变换功能，即将回调函数设置为 NULL，以防止进一步的鼠标点击操作。
+同时，如果鼠标右键被点击，代码会计算鼠标点击位置所在的网格的行和列，并判断该网格是否已经被设置为障碍物。如果该网格不是障碍物，代码会在图像上填充矩形框，将该网格设置为障碍物，并改变矩形框的颜色。如果该网格已经是障碍物，代码会将该网格取消障碍物，并将矩形框的颜色改变回默认颜色。
 
-5. showRoute 函数
-   函数用来将求得的路径显示出来，需要传入的参数有一个 cv::Mat 类型的图像引用 img，表示图像将要被修改；参数 gridsize 和 cellsize，网格的大小和每个单元格的大小；包含 GridCell 对象的向量 grids，包含并表示整个网格地图；一个包含指向 GridCell 对象的指针的向量 route，表示路径的点集。
-   先使用 range-based-for 循环遍历路径 route 中的每一个元素；对于非起点和终点的网格，调用 setRoute() 方法进行标记。画图部分论述类似 drawgrid 部分，使用 cv::rectangle 方法，而矩形的位置和大小由网格坐标和单元格大小计算而来，最后通过 cv::imshow 显示图像，并通过 cv::waitKey 保持显示，用来模拟动态展示路径的生成过程。
-6. gridInit 函数
-   函数用来初始化整个网格地图。
-   我先使用 std::fill 函数将 grids 中的每个元素都用 GridCell() 进行初始化。这就可以在 grids 中创建了 gridsize \* gridsize 个 GridCell 对象，并且这些对象的初始状态都是相同的，便于后续进行操作。
-   使用两层嵌套的循环，遍历整个网格。对于每个网格，调用 getGridNum 函数获取在一维向量中的索引，并通过这个索引找到对应的 GridCell 对象。对该 GridCell 对象调用 setIndex 方法，将当前网格的二维坐标 (i, j) 设置为该对象的索引，因为索引值和建立的向量有关系的，需要单独进行初始化，其他的直接调用类的构造函数就可以处理。
-7. generateObstacles 函数
-   函数用于随机生成障碍物，相当于随机地图的功能。
-   使用嵌套的循环遍历整个网格地图。对于每个网格，通过 rand() % 100 生成一个介于 0 到 99 之间的随机数。如果该随机数小于 25，即约有 25% 的概率，将当前网格标记为障碍物。这是通过调用 setBlock(true) 方法来实现的。
-8. drawGrid 函数
-   将初始化的网格画出来，同时加上分割线便于区分。
+## 3. AStar4Way 函数
 
-   - 使用两个嵌套的循环遍历整个网格。根据每个格子的类型，使用 cv::rectangle 画矩形，填充颜色不同。
-     - 如果是障碍物格子，用深紫蓝色填充。
-     - 如果是终点格子，用绿色填充。
-     - 如果是起点格子，用红色填充。
-     - 如果是路径格子，用棕色填充。
-   - 使用循环在图像上绘制网格线，颜色为黑色，线宽为 2。
-     垂直线通过 cv::Point(i _ cell_size, 0) 和 cv::Point(i _ cell*size, image_size) 定义；水平线通过 cv::Point(0, i * cell*size) 和 cv::Point(image_size, i * cell_size) 定义。
+我首先定义了一些变量，包括 openGrid（表示 Open List，即待探索的节点集合）、closeGrid（表示 Close List，即已探索的节点集合）、current（表示当前正在计算的节点）。
+将起始节点 startGrid 放入 Open List。
 
-9. GridCell::setCost4Way 函数
-   GridCell 类中用于设置网格代价的函数，使用了曼哈顿距离进行计算实现。
-   如果当前网格是起始网格，将其 GCost 设置为 0。如果不是起始网格，将其 GCost 设置为其父节点的 GCost 加 1。然后用类中的 getIndex() 方法获取目标网格的坐标，跟着计算当前网格到目标网格的曼哈顿距离，并将结果赋值给 HCost，最后将 GCost 和 HCost 相加，得到 FCost。
-10. AddAllRouteGridToVector 函数
+- 进入循环，直到 Open List 为空：
+  - 找到 Open List 中 FCost 最小的节点作为当前节点 current。如果存在多个节点的 FCost 相同，则选择其中 HCost 最小的节点作为 current。
+  - 将 current 从 Open List 中移除，并加入到 Close List 中。
+  - 如果 current 是目标节点 endGrid，则寻路成功，返回 true。
+    - 获取 current 的所有邻居节点（使用 FindAllNeighbors4Way 函数），对于每个邻居节点：
+    - 如果邻居节点是墙或者已经在 Close List 或 Open List 中，则跳过。
+  - 否则，将邻居节点的父节点设置为 current，并计算邻居节点的代价（使用 setCost4Way 函数），将邻居节点加入 Open List 中。
+- 如果 Open List 为空，则寻路失败，返回 false。
+
+## 4. FindAllNeighbors4Way 函数
+
+函数用来找到当前节点的所有四连通邻居节点，也就是该点四个方向可以走的地方，用于辅助 A\*算法实现
+先定义了一个空的邻居节点集合 neighbors，最后将用于返回。
+获取当前节点 current 的索引，即当前节点在二维网格中的位置（currentX 和 currentY）。
+
+- 对于四个方向上的邻居节点：
+- 如果当前节点不在最上方，即 currentY 大于 0，则将上方邻居节点加入邻居节点集合。具体操作是通过计算上方邻居节点在一维数组中的索引，使用 getGridNum 函数取邻居节点的指针，并将其加入邻居节点集合。
+- 如果当前节点不在最下方，即 currentY 小于 gridsize-1，则将下方邻居节点加入邻居节点集合。具体操作同上。
+- 如果当前节点不在最左侧，即 currentX 大于 0，则将左侧邻居节点加入邻居节点集合。具体操作同上。
+- 如果当前节点不在最右侧，即 currentX 小于 gridsize-1，则将右侧邻居节点加入邻居节点集合。具体操作同上。最后返回邻居节点集合。
+
+## 5. showRoute 函数
+
+函数用来将求得的路径显示出来，需要传入的参数有一个 cv::Mat 类型的图像引用 img，表示图像将要被修改；参数 gridsize 和 cellsize，网格的大小和每个单元格的大小；包含 GridCell 对象的向量 grids，包含并表示整个网格地图；一个包含指向 GridCell 对象的指针的向量 route，表示路径的点集。
+先使用 range-based-for 循环遍历路径 route 中的每一个元素；对于非起点和终点的网格，调用 setRoute() 方法进行标记。画图部分论述类似 drawgrid 部分，使用 cv::rectangle 方法，而矩形的位置和大小由网格坐标和单元格大小计算而来，最后通过 cv::imshow 显示图像，并通过 cv::waitKey 保持显示，用来模拟动态展示路径的生成过程。
+
+## 6. gridInit 函数
+
+函数用来初始化整个网格地图。
+我先使用 std::fill 函数将 grids 中的每个元素都用 GridCell() 进行初始化。这就可以在 grids 中创建了 gridsize \* gridsize 个 GridCell 对象，并且这些对象的初始状态都是相同的，便于后续进行操作。
+使用两层嵌套的循环，遍历整个网格。对于每个网格，调用 getGridNum 函数获取在一维向量中的索引，并通过这个索引找到对应的 GridCell 对象。对该 GridCell 对象调用 setIndex 方法，将当前网格的二维坐标 (i, j) 设置为该对象的索引，因为索引值和建立的向量有关系的，需要单独进行初始化，其他的直接调用类的构造函数就可以处理。
+
+## 7. generateObstacles 函数
+
+函数用于随机生成障碍物，相当于随机地图的功能。
+使用嵌套的循环遍历整个网格地图。对于每个网格，通过 rand() % 100 生成一个介于 0 到 99 之间的随机数。如果该随机数小于 25，即约有 25% 的概率，将当前网格标记为障碍物。这是通过调用 setBlock(true) 方法来实现的。
+
+## 8. drawGrid 函数
+
+将初始化的网格画出来，同时加上分割线便于区分。
+
+- 使用两个嵌套的循环遍历整个网格。根据每个格子的类型，使用 cv::rectangle 画矩形，填充颜色不同。
+  - 如果是障碍物格子，用深紫蓝色填充。
+  - 如果是终点格子，用绿色填充。
+  - 如果是起点格子，用红色填充。
+  - 如果是路径格子，用棕色填充。
+- 使用循环在图像上绘制网格线，颜色为黑色，线宽为 2。
+  垂直线通过 cv::Point(i _ cell_size, 0) 和 cv::Point(i _ cell*size, image_size) 定义；水平线通过 cv::Point(0, i * cell*size) 和 cv::Point(image_size, i * cell_size) 定义。
+
+## 9. GridCell::setCost4Way 函数
+
+GridCell 类中用于设置网格代价的函数，使用了曼哈顿距离进行计算实现。
+如果当前网格是起始网格，将其 GCost 设置为 0。如果不是起始网格，将其 GCost 设置为其父节点的 GCost 加 1。然后用类中的 getIndex() 方法获取目标网格的坐标，跟着计算当前网格到目标网格的曼哈顿距离，并将结果赋值给 HCost，最后将 GCost 和 HCost 相加，得到 FCost。
+
+## 10. AddAllRouteGridToVector 函数
+
     - 函数功能是将求出的路径点放在向量中，用于后续将路径点进行表示后显示。
       - 如果当前网格 grid 存在父节点（即不是起点），则执行以下操作：
       - 将当前网格 grid 加入到结果向量 result 中。
@@ -89,7 +118,10 @@ A\*（A-star）算法是一种在图搜索和路径规划领域广泛应用的�
 
 # 四、结果分析
 
-为了让计时功能比较明显，设置了格子数为 64\*64，寻路时间能达到 10ms 左右，太小可能小于 1ms，现象不明显。 1.现象描述
+为了让计时功能比较明显，设置了格子数为 64\*64，寻路时间能达到 10ms 左右，太小可能小于 1ms，现象不明显。
+
+## 1. 现象描述
+
 首先我手动生成了一个简单的回环迷宫，用于测试是否能寻路成功，效果图如下
 
 可见能成功找到终点并把路径显示出来，本程序中的 A\*算法伪代码如下
@@ -114,24 +146,26 @@ A\*（A-star）算法是一种在图搜索和路径规划领域广泛应用的�
 - 返回 寻路失败
   最终能将路径周围各个的结点的 fcost，gcost，hcost 算出来，我们也可以从调试面板中对 grids 进行监视可以看出来，由于程序没有编写可视化的 cost 显示，只能从调试窗口中查看，如下。
 
-1. 算法描述
-   fCost 是从初始状态经由状态 n 到目标状态的代价估计， gCost 是在状态空间中从初始状态到状态 n 的实际代价， hCost 是从状态 n 到目标状态的最佳路径的估计代价。
-   先计算 gcost，例如，选择夹着一个位置，从 A 到该格子是横向移动，单步移动距离为 10，故 g = 10。
-   再估计代价 h。它估计的含义是指忽略剩下的路径是否包含有障碍物（不可走）， 完全按照 Manhattan 计算方式，计算只做横向或纵向移动的累积代价：横向向右移动 3 步，纵向向上移动 1 步，总共 4 步，故为 h = 40.因此从 A 节点移动至 I 节点的总移动代价为： f = g + h = 50。以此类推，将该点剩下的都计算出来，最后选取 f 最小的放到 closelist 里面，并且注意的是，不同方向的 h 和 gcost 是不同的，比如向着终点的 cost 会小一些，这就让其 fcost 比较唯一。引用https://www.redblobgames.com/pathfinding/a-star/introduction.html 的图进行形象的说明。
+## 2. 算法描述
 
-   箭头方向是移动方向，这里虽然反映的是反向路径，但是也是类似的。下图更好的描述了该过程。
+fCost 是从初始状态经由状态 n 到目标状态的代价估计， gCost 是在状态空间中从初始状态到状态 n 的实际代价， hCost 是从状态 n 到目标状态的最佳路径的估计代价。
+先计算 gcost，例如，选择夹着一个位置，从 A 到该格子是横向移动，单步移动距离为 10，故 g = 10。
+再估计代价 h。它估计的含义是指忽略剩下的路径是否包含有障碍物（不可走）， 完全按照 Manhattan 计算方式，计算只做横向或纵向移动的累积代价：横向向右移动 3 步，纵向向上移动 1 步，总共 4 步，故为 h = 40.因此从 A 节点移动至 I 节点的总移动代价为： f = g + h = 50。以此类推，将该点剩下的都计算出来，最后选取 f 最小的放到 closelist 里面，并且注意的是，不同方向的 h 和 gcost 是不同的，比如向着终点的 cost 会小一些，这就让其 fcost 比较唯一。引用https://www.redblobgames.com/pathfinding/a-star/introduction.html 的图进行形象的说明。
 
-2. 功能描述
-   （1）自定义地图和终点起点
-   能将下面的地图左上角，通过鼠标点击变成下下图
+箭头方向是移动方向，这里虽然反映的是反向路径，但是也是类似的。下图更好的描述了该过程。
 
-   终点起点可以通过点击鼠标确定
+## 3. 功能描述
 
-   （2）地图大小定义
-   修改此处定义
+（1）自定义地图和终点起点
+能将下面的地图左上角，通过鼠标点击变成下下图
 
-   可实现大小变化，同时能正常工作
+终点起点可以通过点击鼠标确定
 
-   （3）用时显示
+（2）地图大小定义
+修改此处定义
 
-   （4）寻路失败处理
+可实现大小变化，同时能正常工作
+
+（3）用时显示
+
+（4）寻路失败处理
