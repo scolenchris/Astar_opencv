@@ -6,6 +6,27 @@ In game development, the A* algorithm provides a reliable solution for calculati
 
 Unlike the Dijkstra algorithm, the A* algorithm distinguishes itself by employing a heuristic function to evaluate the priority of each node, thereby finding the shortest path more efficiently. The heuristic function is typically based on an estimated distance from the current node to the goal, such as Euclidean distance or Manhattan distance. Additionally, the flexibility of the A* algorithm allows for the adjustment of the heuristic function according to specific problems, further enhancing search efficiency and adaptability. This makes the A\* algorithm one of the preferred choices for solving path planning problems in practical applications, providing reliable solutions for a wide range of scenarios.
 
+## Content
+
+- [I. Research Background](#i-research-background)
+  - [Content](#content)
+- [II. Design Rationale](#ii-design-rationale)
+- [III. Process Discussion](#iii-process-discussion)
+  - [1. Main Function Section](#1-main-function-section)
+  - [2. onMouse Function](#2-onmouse-function)
+  - [3. AStar4Way Function](#3-astar4way-function)
+  - [4. FindAllNeighbors4Way Function](#4-findallneighbors4way-function)
+  - [5. showRoute Function](#5-showroute-function)
+  - [6. gridInit Function](#6-gridinit-function)
+  - [7. generateObstacles Function](#7-generateobstacles-function)
+  - [8. drawGrid Function](#8-drawgrid-function)
+  - [9. GridCell::setCost4Way Function](#9-gridcellsetcost4way-function)
+  - [10. AddAllRouteGridToVector Function](#10-addallroutegridtovector-function)
+- [IV. Result Analysis](#iv-result-analysis)
+  - [1. Phenomenon Description](#1-phenomenon-description)
+  - [2. Algorithm Description](#2-algorithm-description)
+  - [3. Functional Description](#3-functional-description)
+
 # II. Design Rationale
 
 There are numerous implementations of shortest path algorithms available, such as Dijkstra's algorithm, the Bellman-Ford algorithm, the Floyd-Warshall algorithm, and minimum spanning tree algorithms (Prim's and Kruskal's algorithms). However, the A* algorithm was ultimately chosen for implementation due to its combination of Dijkstra's algorithm and greedy search principles. By using a heuristic function to evaluate the priority of each node, the A* algorithm reduces the search space by selectively exploring the most promising nodes in the vicinity, thereby finding the shortest path more efficiently. The adaptability of the A* algorithm is another reason for selecting this approach. The heuristic function of the A* algorithm is adjustable, allowing it to be tailored to the specific characteristics of a given problem. This makes it highly suitable for different types of graphs and path planning problems, enabling it to flexibly address various application scenarios. Consequently, the A\* algorithm has found widespread use in fields such as artificial intelligence, game development, robotic path planning, and map navigation. Its successful application in numerous cases demonstrates the algorithm's versatility and effectiveness.
